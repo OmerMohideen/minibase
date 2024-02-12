@@ -1,3 +1,6 @@
+// This package is used to handle Collection.
+//
+// The package includes creating a Collection and CRUD operations for records.
 package db
 
 import (
