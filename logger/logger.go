@@ -1,3 +1,6 @@
+// This package is used to create a custom logger.
+//
+// The package includes functions to log messages.
 package logger
 
 import (

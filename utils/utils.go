@@ -1,3 +1,6 @@
+// This package contains utility functions.
+//
+// The package includes functions related to chunking
 package utils
 
 import (

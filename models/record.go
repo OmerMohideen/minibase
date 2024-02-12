@@ -1,3 +1,7 @@
+// This package is used to handle Record.
+//
+// The package includes creating a Record, adding and getting
+// fields from the record.
 package models
 
 import "fmt"
