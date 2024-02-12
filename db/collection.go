@@ -11,8 +11,8 @@ import (
 	"strconv"
 	"sync"
 
-	l "github.com/OmerMohideen/minibase/internal/logger"
-	"github.com/OmerMohideen/minibase/internal/models"
+	l "github.com/OmerMohideen/minibase/logger"
+	"github.com/OmerMohideen/minibase/models"
 	"github.com/OmerMohideen/minibase/utils"
 )
 

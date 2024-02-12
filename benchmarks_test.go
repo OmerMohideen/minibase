@@ -5,9 +5,9 @@ import (
 	"os"
 	"testing"
 
-	"github.com/OmerMohideen/minibase/internal/db"
-	"github.com/OmerMohideen/minibase/internal/logger"
-	"github.com/OmerMohideen/minibase/internal/models"
+	"github.com/OmerMohideen/minibase/db"
+	"github.com/OmerMohideen/minibase/logger"
+	"github.com/OmerMohideen/minibase/models"
 )
 
 const LIMIT = 10000

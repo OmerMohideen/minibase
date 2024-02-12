@@ -3,7 +3,7 @@ package utils
 import (
 	"sort"
 
-	"github.com/OmerMohideen/minibase/internal/models"
+	"github.com/OmerMohideen/minibase/models"
 )
 
 // This function gets the range which the id belongs.

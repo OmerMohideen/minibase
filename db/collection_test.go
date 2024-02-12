@@ -5,8 +5,8 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/OmerMohideen/minibase/internal/logger"
-	"github.com/OmerMohideen/minibase/internal/models"
+	"github.com/OmerMohideen/minibase/logger"
+	"github.com/OmerMohideen/minibase/models"
 )
 
 func TestCollection_InsertRecord(t *testing.T) {
