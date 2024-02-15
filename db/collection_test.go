@@ -141,3 +141,29 @@ func TestCollection_LoadRecord(t *testing.T) {
 		t.Errorf("LoadRecords() failed: Loaded record with ID %d does not match original record", id)
 	}
 }
+
+func TestCollection_SetDir(t *testing.T) {
+	logger, tempDir := logger.New(nil, nil), t.TempDir()
+	collection := NewCollection("test_collection", logger)
+	collection.SetDir(tempDir)
+
+	collection.InsertRecord(&models.Record{Fields: map[string]interface{}{"name": "Sajith", "age": 30}})
+	collection.InsertRecord(&models.Record{Fields: map[string]interface{}{"name": "Mahinda", "age": 35}})
+	collection.InsertRecord(&models.Record{Fields: map[string]interface{}{"name": "Anura", "age": 40}})
+
+	err := collection.FlushRecords()
+	if err != nil {
+		t.Errorf("SetDir() failed: Error saving collection data to file: %v", err)
+	}
+
+	newcollection := NewCollection("test_collection", logger)
+	newcollection.SetDir(tempDir)
+
+	if err != nil {
+		t.Errorf("SetDir() failed: Error loading next id from file: %v", err)
+	}
+
+	if collection.nextID != newcollection.nextID {
+		t.Errorf("SetDir() failed: Error next id is not the same as %d", collection.nextID)
+	}
+}
