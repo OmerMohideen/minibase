@@ -50,6 +50,7 @@ func NewCollection(name string, logger *l.Logger) *Collection {
 // in a specific directory.
 func (c *Collection) SetDir(dir string) {
 	c.dir = dir
+	c.loadNextId()
 }
 
 // This function gets all records from the collection
@@ -273,5 +274,30 @@ func (c *Collection) LoadRecord(id int) error {
 			break
 		}
 	}
+	return nil
+}
+
+// This function loads the next id from the
+// existing collection. It automatically updates when
+// using the SetDir() function.
+func (c *Collection) loadNextId() error {
+	path := filepath.Join(c.dir, c.name)
+	files, err := os.ReadDir(path)
+	if err != nil {
+		return err
+	}
+
+	file, err := os.Open(filepath.Join(path, files[len(files)-1].Name()))
+	if err != nil {
+		return fmt.Errorf("error opening file: %v", err)
+	}
+	defer file.Close()
+
+	decoder := json.NewDecoder(file)
+	var records []models.Record
+	if err := decoder.Decode(&records); err != nil {
+		return fmt.Errorf("error decoding data: %v", err)
+	}
+	c.nextID = records[len(records)-1].ID + 1
 	return nil
 }
