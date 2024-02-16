@@ -50,7 +50,7 @@ func NewCollection(name string, logger *l.Logger) *Collection {
 // in a specific directory.
 func (c *Collection) SetDir(dir string) {
 	c.dir = dir
-	c.loadNextId()
+	loadNextId(c)
 }
 
 // This function gets all records from the collection
@@ -280,7 +280,7 @@ func (c *Collection) LoadRecord(id int) error {
 // This function loads the next id from the
 // existing collection. It automatically updates when
 // using the SetDir() function.
-func (c *Collection) loadNextId() error {
+func loadNextId(c *Collection) error {
 	path := filepath.Join(c.dir, c.name)
 	files, err := os.ReadDir(path)
 	if err != nil {
