@@ -287,6 +287,11 @@ func (c *Collection) loadNextId() error {
 		return err
 	}
 
+	if len(files) == 0 {
+		c.nextID = 1
+		return nil
+	}
+
 	file, err := os.Open(filepath.Join(path, files[len(files)-1].Name()))
 	if err != nil {
 		return fmt.Errorf("error opening file: %v", err)
@@ -298,6 +303,12 @@ func (c *Collection) loadNextId() error {
 	if err := decoder.Decode(&records); err != nil {
 		return fmt.Errorf("error decoding data: %v", err)
 	}
+
+	if len(records) == 0 {
+		c.nextID = 1
+		return nil
+	}
+
 	c.nextID = records[len(records)-1].ID + 1
 	return nil
 }
