@@ -277,9 +277,8 @@ func (c *Collection) LoadRecord(id int) error {
 	return nil
 }
 
-// This function loads the next id from the
-// existing collection. It automatically updates when
-// using the SetDir() function.
+// This function loads the next ID from
+// the latest JSON file in the collection directory.
 func loadNextId(c *Collection) error {
 	path := filepath.Join(c.dir, c.name)
 	files, err := os.ReadDir(path)
