@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"reflect"
 	"testing"
+	"time"
 
 	"github.com/OmerMohideen/minibase/logger"
 	"github.com/OmerMohideen/minibase/models"
@@ -137,6 +138,7 @@ func TestCollection_LoadRecord(t *testing.T) {
 	}
 
 	oldrecord, newrecord := collection.records[id], newcollection.records[id]
+	newrecord.ExpiresAt = oldrecord.ExpiresAt
 	if !reflect.DeepEqual(oldrecord, newrecord) {
 		t.Errorf("LoadRecords() failed: Loaded record with ID %d does not match original record", id)
 	}
@@ -165,5 +167,18 @@ func TestCollection_SetDir(t *testing.T) {
 
 	if collection.nextID != newcollection.nextID {
 		t.Errorf("SetDir() failed: Error next id is not the same as %d", collection.nextID)
+	}
+}
+
+func TestCollection_cleanCollection(t *testing.T) {
+	logger := logger.New(nil, nil)
+	collection := NewCollection("test_collection", logger)
+
+	collection.InsertRecord(&models.Record{Fields: map[string]interface{}{"name": "Sajith", "age": 30}})
+
+	time.Sleep(LIFE_SPAN + (time.Second * 5))
+
+	if _, ok := collection.records[1]; ok {
+		t.Errorf("cleanCollection() failed: Error cache still exists")
 	}
 }
