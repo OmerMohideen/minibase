@@ -10,15 +10,20 @@ import (
 	"path/filepath"
 	"strconv"
 	"sync"
+	"time"
 
 	l "github.com/OmerMohideen/minibase/logger"
 	"github.com/OmerMohideen/minibase/models"
 	"github.com/OmerMohideen/minibase/utils"
 )
 
-// Maximum number of records saved in a file.
-// This is used for partitioning.
-const MAX_CHUNK = 500
+const (
+	// Maximum number of records saved in a file.
+	// This is used for partitioning.
+	MAX_CHUNK = 500
+	// Life span of the cached data stored
+	LIFE_SPAN = time.Second * 30
+)
 
 // Collection represents a collection in the database.
 type Collection struct {
@@ -42,7 +47,24 @@ func NewCollection(name string, logger *l.Logger) *Collection {
 	}
 	dir, _ := os.Getwd()
 	collection.SetDir(dir)
+
+	go collection.cleanCollection(LIFE_SPAN)
+
 	return &collection
+}
+
+func (c *Collection) cleanCollection(interval time.Duration) {
+	ticker := time.NewTicker(interval)
+	defer ticker.Stop()
+	for range ticker.C {
+		c.mu.Lock()
+		for key, record := range c.records {
+			if time.Now().After(record.ExpiresAt) {
+				delete(c.records, key)
+			}
+		}
+		c.mu.Unlock()
+	}
 }
 
 // This function updates the directory of the collection.
@@ -67,6 +89,7 @@ func (c *Collection) InsertRecord(record *models.Record) {
 	defer c.mu.Unlock()
 
 	record.ID = c.nextID
+	record.ExpiresAt = time.Now().Add(LIFE_SPAN)
 	c.records[c.nextID] = record
 	c.nextID++
 }
@@ -78,6 +101,7 @@ func (c *Collection) GetRecordByID(id int) (*models.Record, error) {
 	record, ok := c.records[id]
 	c.mu.Unlock()
 	if ok {
+		record.ExpiresAt = time.Now().Add(LIFE_SPAN)
 		return record, nil
 	}
 
@@ -92,6 +116,7 @@ func (c *Collection) GetRecordByID(id int) (*models.Record, error) {
 	if !ok {
 		return nil, fmt.Errorf("record with ID '%d' not found even after loading", id)
 	}
+	record.ExpiresAt = time.Now().Add(LIFE_SPAN)
 	return record, nil
 }
 
@@ -105,6 +130,7 @@ func (c *Collection) UpdateRecord(id int, newRecord *models.Record) error {
 
 	newRecord.ID = id
 	if ok {
+		newRecord.ExpiresAt = time.Now().Add(LIFE_SPAN)
 		c.records[id] = newRecord
 		return nil
 	}
@@ -120,6 +146,7 @@ func (c *Collection) UpdateRecord(id int, newRecord *models.Record) error {
 	if !ok {
 		return fmt.Errorf("record with ID '%d' does not exist", id)
 	}
+	newRecord.ExpiresAt = time.Now().Add(LIFE_SPAN)
 	c.records[id] = newRecord
 	return nil
 }

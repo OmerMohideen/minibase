@@ -4,12 +4,16 @@
 // fields from the record.
 package models
 
-import "fmt"
+import (
+	"fmt"
+	"time"
+)
 
 // Record represents a record with customizable fields.
 type Record struct {
-	ID     int
-	Fields map[string]interface{}
+	ID        int                    `json:"id"`
+	Fields    map[string]interface{} `json:"fields"`
+	ExpiresAt time.Time              `json:"-"`
 }
 
 // This function creates a new record.
