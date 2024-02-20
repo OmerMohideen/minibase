@@ -21,13 +21,17 @@ func TestRecord_Validate(t *testing.T) {
 	record := NewRecord()
 	record.AddField("name", "Sajith")
 	record.AddField("age", 30)
-	requiredFields := []string{"name", "age", "email"}
-	err := record.Validate(requiredFields)
+	schema := map[string]string{
+		"name":  "string",
+		"age":   "int",
+		"email": "string",
+	}
+	err := record.Validate(schema)
 	if err == nil {
 		t.Errorf("Validate() failed: Expected validation error for missing 'email' field")
 	}
 	record.AddField("email", "Sajith@example.com")
-	err = record.Validate(requiredFields)
+	err = record.Validate(schema)
 	if err != nil {
 		t.Errorf("Validate() failed: Validation error: %v", err)
 	}

@@ -6,6 +6,7 @@ package models
 
 import (
 	"fmt"
+	"reflect"
 	"time"
 )
 
@@ -39,11 +40,16 @@ func (r *Record) GetField(name string) (interface{}, error) {
 	return value, nil
 }
 
-// This function checks if the record has all required fields.
-func (r *Record) Validate(requiredFields []string) error {
-	for _, field := range requiredFields {
-		if _, ok := r.Fields[field]; !ok {
-			return fmt.Errorf("required field '%s' is missing", field)
+// This function checks if the record has all required fields
+// with specified types.
+func (r *Record) Validate(schema map[string]string) error {
+	for fieldName, expectedType := range schema {
+		value, ok := r.Fields[fieldName]
+		if !ok {
+			return fmt.Errorf("required field '%s' is missing", fieldName)
+		}
+		if reflect.TypeOf(value).Kind().String() != expectedType {
+			return fmt.Errorf("field '%s' has incorrect type, expected %s", fieldName, expectedType)
 		}
 	}
 	return nil
