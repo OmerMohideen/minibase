@@ -72,7 +72,42 @@ func (c *Collection) cleanCollection(interval time.Duration) {
 // in a specific directory.
 func (c *Collection) SetDir(dir string) {
 	c.dir = dir
-	loadNextId(c)
+	c.loadNextId()
+}
+
+// This function loads the next ID from
+// the latest JSON file in the collection directory.
+func (c *Collection) loadNextId() error {
+	path := filepath.Join(c.dir, c.name)
+	files, err := os.ReadDir(path)
+	if err != nil {
+		return err
+	}
+
+	if len(files) == 0 {
+		c.nextID = 1
+		return nil
+	}
+
+	file, err := os.Open(filepath.Join(path, files[len(files)-1].Name()))
+	if err != nil {
+		return fmt.Errorf("error opening file: %v", err)
+	}
+	defer file.Close()
+
+	decoder := json.NewDecoder(file)
+	var records []models.Record
+	if err := decoder.Decode(&records); err != nil {
+		return fmt.Errorf("error decoding data: %v", err)
+	}
+
+	if len(records) == 0 {
+		c.nextID = 1
+		return nil
+	}
+
+	c.nextID = records[len(records)-1].ID + 1
+	return nil
 }
 
 // This function gets all records from the collection
@@ -301,40 +336,5 @@ func (c *Collection) LoadRecord(id int) error {
 			break
 		}
 	}
-	return nil
-}
-
-// This function loads the next ID from
-// the latest JSON file in the collection directory.
-func loadNextId(c *Collection) error {
-	path := filepath.Join(c.dir, c.name)
-	files, err := os.ReadDir(path)
-	if err != nil {
-		return err
-	}
-
-	if len(files) == 0 {
-		c.nextID = 1
-		return nil
-	}
-
-	file, err := os.Open(filepath.Join(path, files[len(files)-1].Name()))
-	if err != nil {
-		return fmt.Errorf("error opening file: %v", err)
-	}
-	defer file.Close()
-
-	decoder := json.NewDecoder(file)
-	var records []models.Record
-	if err := decoder.Decode(&records); err != nil {
-		return fmt.Errorf("error decoding data: %v", err)
-	}
-
-	if len(records) == 0 {
-		c.nextID = 1
-		return nil
-	}
-
-	c.nextID = records[len(records)-1].ID + 1
 	return nil
 }
