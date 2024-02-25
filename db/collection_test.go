@@ -137,8 +137,11 @@ func TestCollection_LoadRecord(t *testing.T) {
 		t.Errorf("LoadRecord() failed: Error loading collection record from file: %v", err)
 	}
 
-	oldrecord, newrecord := collection.records[id], newcollection.records[id]
-	newrecord.ExpiresAt = oldrecord.ExpiresAt
+	// oldrecord, newrecord := collection.records[id, newcollection.records[id]
+	// newrecord.ExpiresAt = oldrecord.ExpiresAt
+	oldrecord, _ := collection.GetRecordByID(id)
+	newrecord := newcollection.records[id]
+	newrecord.ExpiresAt, newrecord.Flushed = oldrecord.ExpiresAt, oldrecord.Flushed // Deep equal checks for all types
 	if !reflect.DeepEqual(oldrecord, newrecord) {
 		t.Errorf("LoadRecords() failed: Loaded record with ID %d does not match original record", id)
 	}
