@@ -59,7 +59,7 @@ func (c *Collection) cleanCollection(interval time.Duration) {
 	for range ticker.C {
 		c.mu.Lock()
 		for key, record := range c.records {
-			if time.Now().After(record.ExpiresAt) {
+			if time.Now().After(record.ExpiresAt) && record.Flushed {
 				delete(c.records, key)
 			}
 		}
@@ -125,6 +125,7 @@ func (c *Collection) InsertRecord(record *models.Record) {
 
 	record.ID = c.nextID
 	record.ExpiresAt = time.Now().Add(LIFE_SPAN)
+	record.Flushed = false
 	c.records[c.nextID] = record
 	c.nextID++
 }
@@ -264,6 +265,9 @@ func (c *Collection) FlushRecords() error {
 	max := MAX_CHUNK
 	min := 1
 	for _, chunk := range chunks {
+		for _, record := range chunk {
+			record.Flushed = true
+		}
 		filename := fmt.Sprintf("%d-%d.json", min, max)
 		file, err := os.Create(filepath.Join(c.dir, c.name, filename))
 		if err != nil {
@@ -319,6 +323,7 @@ func (c *Collection) LoadRecord(id int) error {
 
 	// Convert float64 fields to integers
 	for _, record := range records {
+		record.Flushed = true
 		for name, value := range record.Fields {
 			if floatValue, ok := value.(float64); ok {
 				intValue, err := strconv.Atoi(fmt.Sprintf("%.0f", floatValue))

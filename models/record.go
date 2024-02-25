@@ -15,14 +15,16 @@ type Record struct {
 	ID        int                    `json:"id"`
 	Fields    map[string]interface{} `json:"fields"`
 	ExpiresAt time.Time              `json:"-"`
+	Flushed   bool                   `json:"-"`
 }
 
 // This function creates a new record.
 // To store data inside using Fields.
 func NewRecord() *Record {
 	return &Record{
-		ID:     0,
-		Fields: make(map[string]interface{}),
+		ID:      0,
+		Fields:  make(map[string]interface{}),
+		Flushed: false,
 	}
 }
 
